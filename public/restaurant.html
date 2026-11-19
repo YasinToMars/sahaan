@@ -1,0 +1,50 @@
+<!-- Owner: Danish Maindan. Requirements: FR3 (view a restaurant, its menu and reviews) and FR4 (write, edit, delete a review).
+     What it does: restaurant.html?id=3 shows one restaurant. restaurant.js fills in every section. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Restaurant · Sahaan</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main id="main" class="container">
+    <p><a href="/index.html" class="back-link">← Back to all restaurants</a></p>
+
+    <div id="page-message" class="message"></div>
+
+    <section id="restaurant-details" class="restaurant-hero" aria-live="polite">
+      <p class="muted">Loading restaurant…</p>
+    </section>
+
+    <div class="restaurant-layout">
+      <section class="panel" aria-labelledby="menu-heading">
+        <h2 id="menu-heading">Menu</h2>
+        <ul id="menu-list" class="menu-list"></ul>
+      </section>
+
+      <section class="panel" aria-labelledby="reviews-heading">
+        <div class="section-head">
+          <h2 id="reviews-heading">Reviews <span id="review-count" class="muted"></span></h2>
+          <!-- TODO (Danish): add a "Sort reviews" <select id="review-sort"> here with three options: Newest, Highest rating, Lowest rating. -->
+        </div>
+
+        <div id="review-message" class="message"></div>
+        <!-- The review form, "Your review" (with Edit and Delete), or "Log in to write a review" -->
+        <div id="review-area" class="review-area"></div>
+
+        <ul id="reviews-list" class="review-list"></ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">Sahaan · F28WP Group 15 · All restaurants and reviews are demo data</footer>
+
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/restaurant.js"></script>
+</body>
+</html>

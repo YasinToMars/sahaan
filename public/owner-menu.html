@@ -1,0 +1,84 @@
+<!-- Owner: Aberham Ketema Abebe. Requirements: FR6 (menu items) and FR7 (reviews of my restaurants).
+     What it does: choose one of my restaurants, then manage its menu and read its reviews. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Menu &amp; reviews · Sahaan</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main id="main" class="container">
+    <section class="page-intro">
+      <h1>Menu &amp; reviews</h1>
+      <p class="muted">Keep your menu up to date and see what customers say.</p>
+    </section>
+
+    <div id="page-message" class="message"></div>
+
+    <div id="menu-page" hidden>
+      <div class="field restaurant-picker">
+        <label for="restaurant-select">Restaurant</label>
+        <select id="restaurant-select"></select>
+      </div>
+
+      <section class="panel" aria-labelledby="menu-heading">
+        <h2 id="menu-heading">Menu items</h2>
+        <div id="menu-message" class="message"></div>
+
+        <div class="table-wrap">
+          <table id="menu-table" class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Item</th>
+                <th scope="col">Description</th>
+                <th scope="col" class="number">Price (AED)</th>
+                <th scope="col" class="actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h3>Add an item</h3>
+        <form id="add-item-form" class="form inline-form" novalidate>
+          <div class="field">
+            <label for="item-name">Name</label>
+            <input type="text" id="item-name" name="name" maxlength="80" required>
+            <p class="field-error" data-error-for="name"></p>
+          </div>
+          <div class="field grow">
+            <label for="item-description">Description <span class="muted">(optional)</span></label>
+            <input type="text" id="item-description" name="description" maxlength="200">
+            <p class="field-error" data-error-for="description"></p>
+          </div>
+          <div class="field small-field">
+            <label for="item-price">Price (AED)</label>
+            <input type="text" id="item-price" name="price" inputmode="decimal" placeholder="25.00" required>
+            <p class="field-error" data-error-for="price"></p>
+          </div>
+          <div class="field">
+            <span class="label" aria-hidden="true">&nbsp;</span>
+            <button type="submit" class="button">Add item</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="reviews-heading">
+        <h2 id="reviews-heading">Reviews of this restaurant</h2>
+        <div id="review-summary"></div>
+        <ul id="owner-reviews" class="review-list"></ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">Sahaan · F28WP Group 15 · All restaurants and reviews are demo data</footer>
+
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/owner-menu.js"></script>
+</body>
+</html>

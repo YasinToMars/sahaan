@@ -1,0 +1,91 @@
+<!-- Owner: Orit Woldemeskel. Requirement: FR5 (restaurant owners add and update their own restaurants).
+     What it does: the owner's restaurant cards with stats, and one form to add or edit a restaurant. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My restaurants · Sahaan</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main id="main" class="container">
+    <section class="page-intro">
+      <h1>My restaurants</h1>
+      <p class="muted">See how your restaurants are doing, add a new one, or update the details.</p>
+    </section>
+
+    <div class="owner-layout">
+      <section aria-labelledby="list-heading">
+        <h2 id="list-heading" class="visually-hidden">Your restaurants</h2>
+        <div id="restaurant-list" class="stack"></div>
+      </section>
+
+      <section class="panel form-panel" aria-labelledby="form-heading">
+        <h2 id="form-heading">Add a restaurant</h2>
+        <div id="restaurant-message" class="message"></div>
+
+        <form id="restaurant-form" class="form" novalidate>
+          <input type="hidden" id="restaurant-id" value="">
+
+          <div class="field">
+            <label for="name">Restaurant name</label>
+            <input type="text" id="name" name="name" maxlength="100" required>
+            <p class="field-error" data-error-for="name"></p>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="cuisine">Cuisine</label>
+              <select id="cuisine" name="cuisine" required>
+                <option value="">Choose a cuisine</option>
+              </select>
+              <p class="field-error" data-error-for="cuisine"></p>
+            </div>
+            <div class="field">
+              <label for="location">Location</label>
+              <select id="location" name="location" required>
+                <option value="">Choose an area</option>
+              </select>
+              <p class="field-error" data-error-for="location"></p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="price_level">Price</label>
+            <select id="price_level" name="price_level" required>
+              <option value="">Choose a price level</option>
+            </select>
+            <p class="field-error" data-error-for="price_level"></p>
+          </div>
+
+          <div class="field">
+            <label for="description">Description <span class="muted">(optional)</span></label>
+            <textarea id="description" name="description" rows="4" maxlength="500"></textarea>
+            <div class="field-foot">
+              <p class="field-error" data-error-for="description"></p>
+              <span id="description-counter" class="counter" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <!-- TODO (Orit): add an optional "Opening hours" field here: an <input type="text" id="opening_hours" name="opening_hours" maxlength="100">
+               with a label, a hint such as "e.g. Daily 10:00-23:00", and a <p class="field-error" data-error-for="opening_hours"></p>. -->
+
+          <div class="button-row">
+            <button type="submit" id="save-button" class="button">Add restaurant</button>
+            <button type="button" id="cancel-edit" class="button button-secondary" hidden>Cancel edit</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">Sahaan · F28WP Group 15 · All restaurants and reviews are demo data</footer>
+
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/owner.js"></script>
+</body>
+</html>

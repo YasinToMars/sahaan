@@ -1,0 +1,5 @@
+# Owner: Danish Maindan
+# Files that must never go to GitHub.
+node_modules/
+config/db.local.json
+.DS_Store

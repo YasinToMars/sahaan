@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <!-- Owner: Yasin Shafiei. What it is: the Sahaan three-tier architecture diagram (1600x900, deck colours), for docs/ARCHITECTURE.md and the demo video. -->
+  <defs>
+    <style>
+      .bg { fill: #141516; }
+      .tier { fill: #1E2022; stroke: #34383C; stroke-width: 2; }
+      .card { fill: #26292C; }
+      .chip { fill: #1E2022; stroke: #BFC1A6; stroke-width: 1.5; }
+      .h1 { font-family: 'Century Gothic', Futura, sans-serif; font-weight: 700; font-size: 44px; fill: #F3F1EA; }
+      .h2 { font-family: 'Century Gothic', Futura, sans-serif; font-weight: 700; font-size: 28px; fill: #F3F1EA; }
+      .tag { font-family: Arial, sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 3px; fill: #BFC1A6; }
+      .title { font-family: Arial, sans-serif; font-weight: 700; font-size: 17px; fill: #F3F1EA; }
+      .text { font-family: Arial, sans-serif; font-size: 14px; fill: #A9A79F; }
+      .sub { font-family: Arial, sans-serif; font-size: 20px; fill: #A9A79F; }
+      .gap { font-family: Arial, sans-serif; font-weight: 700; font-size: 16px; fill: #BFC1A6; }
+      .small { font-family: Arial, sans-serif; font-size: 13px; fill: #A9A79F; }
+      .step { font-family: Arial, sans-serif; font-size: 14px; fill: #F3F1EA; }
+      .strip { font-family: 'Century Gothic', Futura, sans-serif; font-weight: 700; font-size: 18px; fill: #BFC1A6; }
+      .note { font-family: Arial, sans-serif; font-size: 15px; fill: #A9A79F; }
+      .arrow { stroke: #BFC1A6; stroke-width: 3; fill: none; }
+      .thin { stroke: #A9A79F; stroke-width: 1.5; fill: none; }
+    </style>
+    <marker id="head" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#BFC1A6"/>
+    </marker>
+    <marker id="headSmall" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#A9A79F"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="900"/>
+
+  <!-- Title -->
+  <text class="h1" x="60" y="88">Sahaan: how it fits together</text>
+  <text class="sub" x="60" y="128">Three tiers: the browser, the Node.js server and the MySQL database · F28WP Group 15</text>
+
+  <!-- ===== Tier 1: Browser ===== -->
+  <rect class="tier" x="60" y="164" width="390" height="526" rx="18"/>
+  <text class="tag" x="84" y="204">1 · BROWSER</text>
+  <text class="h2" x="84" y="242">HTML, CSS, jQuery</text>
+
+  <rect class="card" x="84" y="262" width="342" height="104" rx="10"/>
+  <text class="title" x="100" y="288">9 HTML pages</text>
+  <text class="text" x="100" y="312">index, login, register, profile,</text>
+  <text class="text" x="100" y="332">restaurant, my-reviews, owner,</text>
+  <text class="text" x="100" y="352">owner-menu, admin</text>
+
+  <rect class="card" x="84" y="378" width="342" height="66" rx="10"/>
+  <text class="title" x="100" y="404">css/style.css</text>
+  <text class="text" x="100" y="428">CSS variables · phone layout under 700px</text>
+
+  <rect class="card" x="84" y="456" width="342" height="88" rx="10"/>
+  <text class="title" x="100" y="482">jQuery + js/common.js</text>
+  <text class="text" x="100" y="506">api(): $.ajax with the login token</text>
+  <text class="text" x="100" y="526">nav, page guards, validation, .text()</text>
+
+  <rect class="card" x="84" y="556" width="342" height="110" rx="10"/>
+  <text class="title" x="100" y="582">Web Storage (localStorage)</text>
+  <text class="text" x="100" y="606">sahaan.session → { token, user }</text>
+  <text class="text" x="100" y="628">sahaan.lastSearch → the last filters,</text>
+  <text class="text" x="100" y="648">put back when the home page opens</text>
+
+  <!-- ===== Gap 1: JSON over HTTP ===== -->
+  <text class="gap" x="525" y="360" text-anchor="middle">JSON over</text>
+  <text class="gap" x="525" y="380" text-anchor="middle">HTTP (AJAX)</text>
+  <line class="arrow" x1="462" y1="420" x2="586" y2="420" marker-end="url(#head)"/>
+  <text class="small" x="525" y="444" text-anchor="middle">request + token</text>
+  <line class="arrow" x1="586" y1="482" x2="462" y2="482" marker-end="url(#head)"/>
+  <text class="small" x="525" y="506" text-anchor="middle">{ data } or { error }</text>
+
+  <!-- ===== Tier 2: Server ===== -->
+  <rect class="tier" x="600" y="164" width="440" height="526" rx="18"/>
+  <text class="tag" x="624" y="204">2 · SERVER</text>
+  <text class="h2" x="624" y="242">Node.js + Express</text>
+
+  <rect class="card" x="624" y="262" width="392" height="66" rx="10"/>
+  <text class="title" x="640" y="288">server.js</text>
+  <text class="text" x="640" y="312">JSON body, static files, routers, error handler</text>
+
+  <rect class="card" x="624" y="340" width="392" height="88" rx="10"/>
+  <text class="title" x="640" y="366">middleware/auth.js</text>
+  <text class="text" x="640" y="390">token → { userId, createdAt } in a Map (8 h)</text>
+  <text class="text" x="640" y="410">requireLogin · requireRole('owner')</text>
+
+  <rect class="card" x="624" y="440" width="392" height="88" rx="10"/>
+  <text class="title" x="640" y="466">utils/validate.js · utils/password.js</text>
+  <text class="text" x="640" y="490">same rules as the browser → 400 { error }</text>
+  <text class="text" x="640" y="510">crypto.scrypt with a random salt</text>
+
+  <rect class="card" x="624" y="540" width="392" height="126" rx="10"/>
+  <text class="title" x="640" y="566">routes/</text>
+  <text class="text" x="640" y="590">auth · search · restaurants · reviews   (FR1 to FR4)</text>
+  <text class="text" x="640" y="610">owner · menu · admin   (FR5 to FR10)</text>
+  <text class="title" x="640" y="642">config/db.js</text>
+  <text class="text" x="752" y="642">one mysql2 connection pool</text>
+
+  <!-- ===== Gap 2: SQL ===== -->
+  <text class="gap" x="1115" y="360" text-anchor="middle">SQL with ?</text>
+  <text class="gap" x="1115" y="380" text-anchor="middle">placeholders</text>
+  <line class="arrow" x1="1052" y1="420" x2="1176" y2="420" marker-end="url(#head)"/>
+  <text class="small" x="1115" y="444" text-anchor="middle">query + values</text>
+  <line class="arrow" x1="1176" y1="482" x2="1052" y2="482" marker-end="url(#head)"/>
+  <text class="small" x="1115" y="506" text-anchor="middle">rows</text>
+
+  <!-- ===== Tier 3: Database ===== -->
+  <rect class="tier" x="1190" y="164" width="350" height="526" rx="18"/>
+  <text class="tag" x="1214" y="204">3 · DATABASE</text>
+  <text class="h2" x="1214" y="242">MySQL: sahaan</text>
+
+  <rect class="card" x="1214" y="262" width="302" height="88" rx="10"/>
+  <text class="title" x="1230" y="288">users</text>
+  <text class="text" x="1230" y="312">id, full_name, email (unique),</text>
+  <text class="text" x="1230" y="332">password_hash, role</text>
+
+  <rect class="card" x="1214" y="364" width="302" height="88" rx="10"/>
+  <text class="title" x="1230" y="390">restaurants</text>
+  <text class="text" x="1230" y="414">owner_id → users.id</text>
+  <text class="text" x="1230" y="434">cuisine, location, price_level</text>
+
+  <rect class="card" x="1214" y="466" width="302" height="88" rx="10"/>
+  <text class="title" x="1230" y="492">menu_items</text>
+  <text class="text" x="1230" y="516">restaurant_id → restaurants.id</text>
+  <text class="text" x="1230" y="536">name, description, price (AED)</text>
+
+  <rect class="card" x="1214" y="568" width="302" height="98" rx="10"/>
+  <text class="title" x="1230" y="594">reviews</text>
+  <text class="text" x="1230" y="616">restaurant_id → restaurants.id</text>
+  <text class="text" x="1230" y="636">user_id → users.id</text>
+  <text class="text" x="1230" y="656">one per customer per restaurant</text>
+
+  <!-- ===== One request, end to end ===== -->
+  <text class="strip" x="60" y="736">One request, end to end: a customer posts a review</text>
+
+  <rect class="chip" x="60" y="756" width="153" height="40" rx="20"/>
+  <text class="step" x="136.5" y="781" text-anchor="middle">Click Post review</text>
+  <line class="thin" x1="215" y1="776" x2="233" y2="776" marker-end="url(#headSmall)"/>
+
+  <rect class="chip" x="237" y="756" width="184" height="40" rx="20"/>
+  <text class="step" x="329" y="781" text-anchor="middle">postReview() → $.ajax</text>
+  <line class="thin" x1="423" y1="776" x2="441" y2="776" marker-end="url(#headSmall)"/>
+
+  <rect class="chip" x="445" y="756" width="260" height="40" rx="20"/>
+  <text class="step" x="575" y="781" text-anchor="middle">POST /api/restaurants/6/reviews</text>
+  <line class="thin" x1="707" y1="776" x2="725" y2="776" marker-end="url(#headSmall)"/>
+
+  <rect class="chip" x="729" y="756" width="199" height="40" rx="20"/>
+  <text class="step" x="828.5" y="781" text-anchor="middle">requireRole('customer')</text>
+  <line class="thin" x1="930" y1="776" x2="948" y2="776" marker-end="url(#headSmall)"/>
+
+  <rect class="chip" x="952" y="756" width="123" height="40" rx="20"/>
+  <text class="step" x="1013.5" y="781" text-anchor="middle">checkReview()</text>
+  <line class="thin" x1="1077" y1="776" x2="1095" y2="776" marker-end="url(#headSmall)"/>
+
+  <rect class="chip" x="1099" y="756" width="244" height="40" rx="20"/>
+  <text class="step" x="1221" y="781" text-anchor="middle">INSERT INTO reviews (?, ?, ?, ?)</text>
+  <line class="thin" x1="1345" y1="776" x2="1363" y2="776" marker-end="url(#headSmall)"/>
+
+  <rect class="chip" x="1367" y="756" width="173" height="40" rx="20"/>
+  <text class="step" x="1453.5" y="781" text-anchor="middle">201 → page redraws</text>
+
+  <!-- ===== Security ===== -->
+  <text class="note" x="800" y="840" text-anchor="middle">Security: the server checks the role on every protected request, and "your own" is checked in the SQL WHERE clause.</text>
+  <text class="note" x="800" y="866" text-anchor="middle">Passwords are hashed with crypto.scrypt and a salt · every query uses ? placeholders · user text is shown with .text()</text>
+</svg>
