@@ -15,7 +15,7 @@ router.get('/restaurants', requireRole('owner'), async (req, res) => {
   // menu_count comes from a small subquery: joining reviews AND menu_items in the
   // same query would multiply the rows and give wrong counts.
   const restaurants = await db.query(
-    'SELECT r.id, r.name, r.cuisine, r.location, r.price_level, r.description, ' +
+    'SELECT r.id, r.name, r.cuisine, r.location, r.price_level, r.description, r.opening_hours, ' +
       '  ROUND(AVG(rv.rating), 1) AS avg_rating, COUNT(rv.id) AS review_count, ' +
       '  (SELECT COUNT(*) FROM menu_items m WHERE m.restaurant_id = r.id) AS menu_count ' +
       'FROM restaurants r ' +
@@ -28,25 +28,29 @@ router.get('/restaurants', requireRole('owner'), async (req, res) => {
   res.json({ restaurants });
 });
 
-// TODO (Orit): save the optional "Opening hours" (at most 100 characters, e.g. "Daily 10:00-23:00").
-//   In both routes below: send a 400 if req.body.opening_hours is longer than 100 characters, then add
-//   opening_hours to the INSERT and the UPDATE with validate.optionalText(req.body.opening_hours).
-//   Also add r.opening_hours to the SELECT above, so the Edit button can fill it in.
+// Opening hours are optional, at most 100 characters (e.g. "Daily 10:00-23:00").
+// Both routes below check this, the same rule as the browser check in public/js/owner.js.
 
 // POST /api/owner/restaurants  (owner): add a restaurant.
 router.post('/restaurants', requireRole('owner'), async (req, res) => {
   const error = validate.checkRestaurant(req.body);
   if (error) return res.status(400).json({ error });
 
+  if (req.body.opening_hours && req.body.opening_hours.length > 100) {
+    return res.status(400).json({ error: 'Opening hours must be at most 100 characters.' });
+  }
+
   const result = await db.query(
-    'INSERT INTO restaurants (owner_id, name, cuisine, location, price_level, description) VALUES (?, ?, ?, ?, ?, ?)',
+    'INSERT INTO restaurants (owner_id, name, cuisine, location, price_level, description, opening_hours) ' +
+      'VALUES (?, ?, ?, ?, ?, ?, ?)',
     [
       req.user.id,
       req.body.name.trim(),
       req.body.cuisine,
       req.body.location,
       Number(req.body.price_level),
-      validate.optionalText(req.body.description)
+      validate.optionalText(req.body.description),
+      validate.optionalText(req.body.opening_hours)
     ]
   );
   res.status(201).json({ message: 'Your restaurant has been added.', id: result.insertId });
@@ -60,8 +64,12 @@ router.put('/restaurants/:id', requireRole('owner'), async (req, res) => {
   const error = validate.checkRestaurant(req.body);
   if (error) return res.status(400).json({ error });
 
+  if (req.body.opening_hours && req.body.opening_hours.length > 100) {
+    return res.status(400).json({ error: 'Opening hours must be at most 100 characters.' });
+  }
+
   const result = await db.query(
-    'UPDATE restaurants SET name = ?, cuisine = ?, location = ?, price_level = ?, description = ? ' +
+    'UPDATE restaurants SET name = ?, cuisine = ?, location = ?, price_level = ?, description = ?, opening_hours = ? ' +
       'WHERE id = ? AND owner_id = ?',
     [
       req.body.name.trim(),
@@ -69,6 +77,7 @@ router.put('/restaurants/:id', requireRole('owner'), async (req, res) => {
       req.body.location,
       Number(req.body.price_level),
       validate.optionalText(req.body.description),
+      validate.optionalText(req.body.opening_hours),
       id,
       req.user.id
     ]

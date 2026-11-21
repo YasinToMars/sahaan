@@ -93,9 +93,8 @@ function readForm() {
     cuisine: $('#cuisine').val(),
     location: $('#location').val(),
     price_level: $('#price_level').val(),
-    description: $('#description').val().trim()
-    // TODO (Orit): add opening_hours here. Also check it is at most 100 characters in saveRestaurant(),
-    //   and in fillForm() set $('#opening_hours') from restaurant.opening_hours.
+    description: $('#description').val().trim(),
+    opening_hours: $('#opening_hours').val().trim()
   };
 }
 
@@ -110,6 +109,7 @@ function fillForm(restaurant) {
   $('#location').val(restaurant.location);
   $('#price_level').val(String(restaurant.price_level));
   $('#description').val(restaurant.description || '').trigger('input'); // 'input' updates the counter
+  $('#opening_hours').val(restaurant.opening_hours || '');
 
   $('#form-heading').text('Edit ' + restaurant.name);
   $('#save-button').text('Save changes');
@@ -141,8 +141,12 @@ function saveRestaurant(event) {
     cuisine: checkCuisine(data.cuisine),
     location: checkLocation(data.location),
     price_level: checkPriceLevel(data.price_level),
-    description: checkDescription(data.description, 500)
+    description: checkDescription(data.description, 500),
+    opening_hours: ''
   };
+  if (data.opening_hours.length > 100) {
+    errors.opening_hours = 'Opening hours must be at most 100 characters.';
+  }
   if (showFieldErrors($form, errors)) return;
 
   // An id in the hidden field means we are editing (PUT); otherwise we are adding (POST).
