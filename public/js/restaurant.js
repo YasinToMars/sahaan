@@ -23,8 +23,8 @@ $(function () {
   $(document).on('click', '#cancel-edit', renderReviewArea);
   $(document).on('click', '#delete-my-review', deleteMyReview);
 
-  // TODO (Danish): "Sort reviews". When #review-sort changes, copy currentReviews, sort the copy
-  //   (Newest: by created_at, Highest/Lowest rating: by rating) and pass it to renderReviews().
+  // Sort the reviews already loaded from the server; no extra request is needed.
+  $('#review-sort').on('change', renderSortedReviews);
 });
 
 function loadRestaurant() {
@@ -33,7 +33,7 @@ function loadRestaurant() {
       renderDetails(data.restaurant);
       renderMenu(data.menu);
       currentReviews = data.reviews;
-      renderReviews(currentReviews);
+      renderSortedReviews();
       renderReviewArea();
     })
     .fail(function (xhr) {
@@ -102,6 +102,27 @@ function renderMenu(menu) {
 }
 
 /* ----- Reviews list ----- */
+
+// Keep the selected order after loading, posting, editing or deleting a review.
+function renderSortedReviews() {
+  const sortBy = $('#review-sort').val();
+  const sortedReviews = currentReviews.slice(); // leave the original array unchanged
+
+  sortedReviews.sort(function (a, b) {
+    if (sortBy === 'highest' && a.rating !== b.rating) {
+      return b.rating - a.rating;
+    }
+    if (sortBy === 'lowest' && a.rating !== b.rating) {
+      return a.rating - b.rating;
+    }
+
+    // Newest first is also the tie-breaker for equal ratings.
+    const dateDifference = new Date(b.created_at) - new Date(a.created_at);
+    return dateDifference || b.id - a.id; // same timestamp: larger id first
+  });
+
+  renderReviews(sortedReviews);
+}
 
 // Draws the list from an array of reviews, so it can be called again with the same reviews in a new order.
 function renderReviews(reviews) {
