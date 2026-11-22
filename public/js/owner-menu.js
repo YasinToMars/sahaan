@@ -232,8 +232,34 @@ function loadReviews() {
 }
 
 function renderReviews(reviews) {
-  // TODO (Aberham): fill <div id="review-summary"> from the reviews array: the number of reviews,
-  //   the average rating, and how many reviews have 5, 4, 3, 2 and 1 stars (count them with forEach).
+  // Review summary (Aberham): the number of reviews, the average rating,
+  // and how many reviews have 5, 4, 3, 2 and 1 stars.
+  // It is drawn first, because the list below stops early when there are no reviews.
+  const $summary = $('#review-summary').empty();
+
+  if (reviews.length === 0) {
+    $summary.append($('<p class="muted">').text('No reviews yet'));
+  } else {
+    const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    let total = 0;
+
+    reviews.forEach(function (review) {
+      const rating = Number(review.rating);
+      if (counts[rating] !== undefined) counts[rating]++;
+      total += rating;
+    });
+
+    const average = (total / reviews.length).toFixed(1); // one decimal place, e.g. 3.8
+    const word = reviews.length === 1 ? 'review' : 'reviews';
+
+    $summary.append($('<p>').append(
+      $('<strong>').text(reviews.length + ' ' + word + ' · average ' + average)
+    ));
+
+    for (let star = 5; star >= 1; star--) {
+      $summary.append($('<div class="small">').text(star + '★ ' + counts[star]));
+    }
+  }
 
   const $list = $('#owner-reviews').empty();
   if (reviews.length === 0) {
