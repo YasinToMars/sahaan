@@ -29,7 +29,14 @@
       <section class="panel" aria-labelledby="reviews-heading">
         <div class="section-head">
           <h2 id="reviews-heading">Reviews <span id="review-count" class="muted"></span></h2>
-          <!-- TODO (Danish): add a "Sort reviews" <select id="review-sort"> here with three options: Newest, Highest rating, Lowest rating. -->
+          <div class="field">
+            <label for="review-sort">Sort reviews</label>
+            <select id="review-sort" aria-controls="reviews-list">
+              <option value="newest">Newest</option>
+              <option value="highest">Highest rating</option>
+              <option value="lowest">Lowest rating</option>
+            </select>
+          </div>
         </div>
 
         <div id="review-message" class="message"></div>
