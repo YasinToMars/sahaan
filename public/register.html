@@ -11,53 +11,64 @@
 <body>
   <header id="site-header"></header>
 
-  <main id="main" class="container narrow">
-    <section class="panel">
-      <h1>Create an account</h1>
-      <p class="muted">Review the places you love, or put your own restaurant on Sahaan.</p>
+  <main id="main" class="container auth-page">
+    <div class="auth-layout">
+      <aside class="auth-aside">
+        <p class="eyebrow">Join Sahaan</p>
+        <p class="auth-quote">One place for Dubai's restaurants, their menus and what people really think.</p>
+        <ul class="auth-points">
+          <li>Customers: review the places you love</li>
+          <li>Owners: list your restaurant and menu</li>
+          <li>Free, and takes a minute</li>
+        </ul>
+      </aside>
+      <section class="panel auth-panel">
+        <h1>Create an account</h1>
+        <p class="muted">Review the places you love, or put your own restaurant on Sahaan.</p>
 
-      <div id="register-message" class="message"></div>
+        <div id="register-message" class="message"></div>
 
-      <form id="register-form" class="form" novalidate>
-        <fieldset class="field role-choice">
-          <legend>I want to…</legend>
-          <label class="choice">
-            <input type="radio" name="role" value="customer" checked>
-            <span class="choice-title">I'm a customer</span>
-            <span class="choice-text">Find restaurants and write reviews</span>
-          </label>
-          <label class="choice">
-            <input type="radio" name="role" value="owner">
-            <span class="choice-title">I own a restaurant</span>
-            <span class="choice-text">Add my restaurant and its menu</span>
-          </label>
-          <p class="field-error" data-error-for="role"></p>
-        </fieldset>
+        <form id="register-form" class="form" novalidate>
+          <fieldset class="field role-choice">
+            <legend>I want to…</legend>
+            <label class="choice">
+              <input type="radio" name="role" value="customer" checked>
+              <span class="choice-title">I'm a customer</span>
+              <span class="choice-text">Find restaurants and write reviews</span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="role" value="owner">
+              <span class="choice-title">I own a restaurant</span>
+              <span class="choice-text">Add my restaurant and its menu</span>
+            </label>
+            <p class="field-error" data-error-for="role"></p>
+          </fieldset>
 
-        <div class="field">
-          <label for="full_name">Full name</label>
-          <input type="text" id="full_name" name="full_name" maxlength="60" autocomplete="name" required>
-          <p class="field-error" data-error-for="full_name"></p>
-        </div>
+          <div class="field">
+            <label for="full_name">Full name</label>
+            <input type="text" id="full_name" name="full_name" maxlength="60" autocomplete="name" required>
+            <p class="field-error" data-error-for="full_name"></p>
+          </div>
 
-        <div class="field">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" maxlength="120" autocomplete="email" required>
-          <p class="field-error" data-error-for="email"></p>
-        </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" maxlength="120" autocomplete="email" required>
+            <p class="field-error" data-error-for="email"></p>
+          </div>
 
-        <div class="field">
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" maxlength="64" autocomplete="new-password" aria-describedby="password-hint" required>
-          <p id="password-hint" class="hint">8 to 64 characters, with at least one letter and one number.</p>
-          <p class="field-error" data-error-for="password"></p>
-        </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" maxlength="64" autocomplete="new-password" aria-describedby="password-hint" required>
+            <p id="password-hint" class="hint">8 to 64 characters, with at least one letter and one number.</p>
+            <p class="field-error" data-error-for="password"></p>
+          </div>
 
-        <button type="submit" class="button button-wide">Create account</button>
-      </form>
+          <button type="submit" class="button button-wide">Create account</button>
+        </form>
 
-      <p class="form-footer">Already have an account? <a href="/login.html">Log in</a></p>
-    </section>
+        <p class="form-footer">Already have an account? <a href="/login.html">Log in</a></p>
+      </section>
+    </div>
   </main>
 
   <footer class="site-footer">Sahaan · F28WP Group 15 · All restaurants and reviews are demo data</footer>

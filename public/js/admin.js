@@ -65,8 +65,8 @@ $(function () {
     deleteReview(rowId(this));
   });
 
-  // TODO (Yassin Awny): when #low-ratings-only changes, hide the rows of #reviews-table whose
-  //   data-rating is above 2 (show them all again when it is unticked). Run it again after renderReviews().
+  // Low-rating filter (Yassin Awny): hides reviews above 2 stars in the browser, no server call.
+  $('#low-ratings-only').on('change', applyLowRatingFilter);
 
   $('.close-panel').on('click', function () {
     $(this).closest('.edit-panel').prop('hidden', true);
@@ -398,6 +398,7 @@ function renderReviews() {
 
   if (reviews.length === 0) {
     $tbody.append(emptyRow(6, 'No reviews match your search.'));
+    applyLowRatingFilter();
     return;
   }
 
@@ -414,6 +415,34 @@ function renderReviews() {
       )
     );
   });
+
+  applyLowRatingFilter(); // keep the checkbox working after a search or a removal
+}
+
+// If "Show only low ratings" is ticked, hide every review above 2 stars; otherwise show every row.
+// It only uses the data-rating on each row, so it needs no server call.
+function applyLowRatingFilter() {
+  const onlyLow = $('#low-ratings-only').prop('checked');
+  const $tbody = $('#reviews-table tbody');
+  const $rows = $tbody.find('tr[data-rating]');
+  let shown = 0;
+
+  $tbody.find('.no-low-ratings').remove();
+
+  $rows.each(function () {
+    const rating = Number($(this).attr('data-rating'));
+    if (onlyLow && rating > 2) {
+      $(this).hide();
+    } else {
+      $(this).show();
+      shown = shown + 1;
+    }
+  });
+
+  // Every review was hidden: say so instead of showing an empty table.
+  if (onlyLow && $rows.length > 0 && shown === 0) {
+    $tbody.append(emptyRow(6, 'No low-rated reviews').addClass('no-low-ratings'));
+  }
 }
 
 function deleteReview(id) {

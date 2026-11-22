@@ -2,6 +2,7 @@
 // Requirement: FR2 (search and filter restaurants by text, cuisine, location, price and minimum rating)
 // What it does: the home page.
 //   - The dropdowns search as soon as they change; the text box searches after a short pause.
+//   - "Popular" buttons and "Browse by cuisine" tiles fill in the search for you.
 //   - The results are shown as cards, with a count and an empty state.
 //   - Web Storage: the last search is saved in localStorage ("sahaan.lastSearch")
 //     and put back when the page opens.
@@ -18,6 +19,8 @@ $(function () {
       fillSelect($('#cuisine'), LISTS.cuisines);
       fillSelect($('#location'), LISTS.locations);
       fillPriceSelect($('#price'));
+      renderCuisineTiles();
+      renderHeroStats();
       restoreLastSearch();
       runSearch();
     })
@@ -47,7 +50,76 @@ $(function () {
     $('#restore-note').text('');
     runSearch();
   });
+
+  // "Popular" buttons in the hero: put the word in the search box and search.
+  $('.quick-search').on('click', function () {
+    $('#q').val($(this).attr('data-q'));
+    runSearch();
+    scrollToResults();
+  });
+
+  // "Browse by cuisine" tiles: choose that cuisine in the dropdown and search.
+  // Clicking the chosen tile again clears it.
+  $('#cuisine-tiles').on('click', '.cuisine-tile', function () {
+    const cuisine = $(this).attr('data-cuisine');
+    $('#cuisine').val($('#cuisine').val() === cuisine ? '' : cuisine);
+    runSearch();
+    scrollToResults();
+  });
 });
+
+function scrollToResults() {
+  document.getElementById('restaurants').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// One photo tile per cuisine, built from the list in config/lists.js.
+function renderCuisineTiles() {
+  const $tiles = $('#cuisine-tiles').empty();
+  LISTS.cuisines.forEach(function (cuisine) {
+    $tiles.append(
+      $('<button type="button" class="cuisine-tile">')
+        .attr('data-cuisine', cuisine)
+        .addClass(swatchClass(cuisine))
+        .append($('<span class="cuisine-tile-name">').text(cuisine))
+    );
+  });
+}
+
+// Marks the tile of the cuisine chosen in the dropdown.
+function markActiveTile() {
+  const chosen = $('#cuisine').val();
+  $('.cuisine-tile').each(function () {
+    const isChosen = $(this).attr('data-cuisine') === chosen;
+    $(this).toggleClass('active', isChosen).attr('aria-pressed', isChosen ? 'true' : 'false');
+  });
+}
+
+// "12 cuisines · 10 areas · 4 price levels" under the hero text, counted from the lists.
+function renderHeroStats() {
+  const stats = [
+    { number: LISTS.cuisines.length, label: 'cuisines' },
+    { number: LISTS.locations.length, label: 'areas of Dubai' },
+    { number: Object.keys(LISTS.priceLabels).length, label: 'price levels' }
+  ];
+  const $list = $('#hero-stats').empty();
+  stats.forEach(function (stat) {
+    $list.append($('<li>').append($('<strong>').text(stat.number), ' ', $('<span>').text(stat.label)));
+  });
+}
+
+// Grey placeholder cards shown while the first results load.
+function showSkeletons() {
+  const $results = $('#results').empty();
+  for (let i = 0; i < 4; i++) {
+    $results.append(
+      $('<div class="skeleton-card" aria-hidden="true">').append(
+        $('<div class="skeleton-block">'),
+        $('<div class="skeleton-line">'),
+        $('<div class="skeleton-line short">')
+      )
+    );
+  }
+}
 
 // Reads the search box and the dropdowns.
 function readFilters() {
@@ -69,6 +141,8 @@ function runSearch() {
 
   clearMessage('#search-message');
   saveLastSearch(filters);
+  markActiveTile();
+  if ($('#results').children().length === 0) showSkeletons();
 
   // Only send the filters that have a value, e.g. ?q=sushi&price=4&sort=rating
   const params = {};

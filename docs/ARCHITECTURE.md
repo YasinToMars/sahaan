@@ -67,9 +67,9 @@ Unknown `/api` routes return 404 in the same format; any unexpected error is log
 | PUT `/api/reviews/:id` | customer, own | Edits a review | Danish |
 | DELETE `/api/reviews/:id` | customer, own | Deletes a review | Danish |
 | GET `/api/reviews/mine` | customer | My reviews with restaurant names | Danish |
-| GET `/api/owner/restaurants` | owner | My restaurants with average rating, review count and menu item count | Orit |
-| POST `/api/owner/restaurants` | owner | Adds a restaurant | Orit |
-| PUT `/api/owner/restaurants/:id` | owner, own | Updates a restaurant | Orit |
+| GET `/api/owner/restaurants` | owner | My restaurants with opening hours, average rating, review count and menu item count | Orit |
+| POST `/api/owner/restaurants` | owner | Adds a restaurant, with optional opening hours (text, at most 100 characters) | Orit |
+| PUT `/api/owner/restaurants/:id` | owner, own | Updates a restaurant, including its opening hours | Orit |
 | GET / POST `/api/owner/restaurants/:id/menu` | owner, own | Lists or adds menu items | Aberham |
 | PUT / DELETE `/api/owner/menu/:itemId` | owner, own | Updates or deletes a menu item (checked through its restaurant's owner) | Aberham |
 | GET `/api/owner/restaurants/:id/reviews` | owner, own | The reviews of one of my restaurants | Aberham |
@@ -78,9 +78,19 @@ Unknown `/api` routes return 404 in the same format; any unexpected error is log
 | PUT `/api/admin/users/:id` | admin | Edits name, email and role; an admin cannot change their own role | Yassin |
 | DELETE `/api/admin/users/:id` | admin | Deletes a user; an admin cannot delete themselves | Yassin |
 | GET `/api/admin/restaurants` | admin | All restaurants, filtered by `q` | Yassin |
-| PUT / DELETE `/api/admin/restaurants/:id` | admin | Edits or deletes any restaurant | Yassin |
+| PUT / DELETE `/api/admin/restaurants/:id` | admin | Edits (name, cuisine, location, price, description) or deletes any restaurant; opening hours are left as they are | Yassin |
 | GET `/api/admin/reviews` | admin | All reviews, newest first, filtered by `q` | Yassin |
 | DELETE `/api/admin/reviews/:id` | admin | Removes a review | Yassin |
+
+### Features that run only in the browser
+
+Three features work on data the page has already loaded, so they make no extra request:
+
+| Feature | Page | How |
+|---|---|---|
+| Sort reviews (Newest, Highest rating, Lowest rating) | `restaurant.html` | `renderSortedReviews()` sorts a copy of the loaded reviews and redraws the list. |
+| Review summary (count, average, reviews per star value) | `owner-menu.html` | `renderReviews()` counts the loaded reviews with `forEach`. |
+| Show only low ratings (1–2 stars) | `admin.html` | `applyLowRatingFilter()` hides table rows whose `data-rating` is above 2. |
 
 `server.js` mounts `routes/search.js` **before** `routes/restaurants.js`, so `/api/restaurants/filters` is not read as `/api/restaurants/:id` with id "filters".
 
@@ -130,7 +140,7 @@ users        1 ──< many  reviews       (reviews.user_id          → users.i
 | Admins cannot lock themselves out | `routes/admin.js` | An admin cannot change their own role or delete their own account. |
 | SQL injection | `config/db.js` and every route | Every value goes through a `?` placeholder. `ORDER BY` cannot use `?`, so the browser sends a short name (`rating`, `name`, `newest`) and the server picks the SQL from a fixed list. A search for `' OR 1=1 --` just finds nothing. |
 | Cross-site scripting (XSS) | every page script | User text goes on the page with jQuery `.text()` (or `escapeHtml()`), never `.html()`. A review containing `<script>` is shown as plain text. |
-| Validation twice | `public/js/common.js` and `utils/validate.js` | The same rules and messages in the browser (for quick feedback) and on the server (because the browser can be bypassed). The server answers bad input with 400. |
+| Validation twice | `public/js/common.js` and `utils/validate.js` | The same rules and messages in the browser (for quick feedback) and on the server (because the browser can be bypassed). The server answers bad input with 400. Opening hours are checked in `public/js/owner.js` and `routes/owner.js`: a non-text value or more than 100 characters gets 400. |
 | Safe redirects | `public/js/login.js` | After login, `?next=` is only followed if it is one of our own pages. |
 | One generic login error | `routes/auth.js` | Wrong email and wrong password both get "Wrong email or password." |
 | No secrets in the code | `config/db.local.json` | The MySQL password lives only in this git-ignored file. |

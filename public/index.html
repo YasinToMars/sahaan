@@ -1,5 +1,6 @@
 <!-- Owner: Yasin Shafiei. Requirement: FR2 (search and filter) and FR3 (open a restaurant).
-     What it does: the home page with the search box, the filters and the restaurant cards. -->
+     What it does: the home page: a photo hero with the search, "Browse by cuisine" tiles,
+     the restaurant results, and a short "How Sahaan works" band. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,74 +9,139 @@
   <title>Sahaan · Find restaurants in Dubai</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
+<body class="home">
   <header id="site-header"></header>
 
-  <main id="main" class="container">
-    <section class="page-intro">
-      <h1>Find somewhere good to eat in Dubai</h1>
-      <p class="muted">Search by restaurant, cuisine or dish, then narrow it down with the filters.</p>
+  <main id="main">
+    <!-- 1. Hero: headline, quick searches and three food photos -->
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow">Dubai food guide</p>
+          <h1>Find somewhere <em>good</em> to eat in Dubai</h1>
+          <p class="tagline">Search by restaurant, cuisine or dish, read honest reviews, and see the menu before you go.</p>
+
+          <div class="quick-searches" aria-label="Popular searches">
+            <span class="quick-label">Popular:</span>
+            <button type="button" class="quick-search" data-q="biryani">Biryani</button>
+            <button type="button" class="quick-search" data-q="sushi">Sushi</button>
+            <button type="button" class="quick-search" data-q="shawarma">Shawarma</button>
+            <button type="button" class="quick-search" data-q="pizza">Pizza</button>
+            <button type="button" class="quick-search" data-q="karak">Karak chai</button>
+          </div>
+
+          <ul id="hero-stats" class="hero-stats"></ul>
+        </div>
+
+        <div class="hero-photos" aria-hidden="true">
+          <div class="hero-photo photo-lebanese"></div>
+          <div class="hero-photo photo-japanese"></div>
+          <div class="hero-photo photo-indian"></div>
+        </div>
+      </div>
     </section>
 
-    <form id="search-form" class="search-panel" novalidate>
-      <div class="field search-text">
-        <label for="q">Search</label>
-        <input type="search" id="q" name="q" maxlength="60" placeholder="e.g. shawarma, sushi or Cedar" autocomplete="off">
-        <p class="field-error" data-error-for="q"></p>
-      </div>
+    <div class="container">
+      <!-- 2. The search card, floating over the bottom of the hero -->
+      <form id="search-form" class="search-panel" novalidate>
+        <div class="field search-text">
+          <label for="q">Search</label>
+          <input type="search" id="q" name="q" maxlength="60" placeholder="e.g. shawarma, sushi or Cedar" autocomplete="off">
+          <p class="field-error" data-error-for="q"></p>
+        </div>
 
-      <div class="field">
-        <label for="cuisine">Cuisine</label>
-        <select id="cuisine" name="cuisine">
-          <option value="">All cuisines</option>
-        </select>
-      </div>
+        <div class="field">
+          <label for="cuisine">Cuisine</label>
+          <select id="cuisine" name="cuisine">
+            <option value="">All cuisines</option>
+          </select>
+        </div>
 
-      <div class="field">
-        <label for="location">Location</label>
-        <select id="location" name="location">
-          <option value="">All of Dubai</option>
-        </select>
-      </div>
+        <div class="field">
+          <label for="location">Location</label>
+          <select id="location" name="location">
+            <option value="">All of Dubai</option>
+          </select>
+        </div>
 
-      <div class="field">
-        <label for="price">Price</label>
-        <select id="price" name="price">
-          <option value="">Any price</option>
-        </select>
-      </div>
+        <div class="field">
+          <label for="price">Price</label>
+          <select id="price" name="price">
+            <option value="">Any price</option>
+          </select>
+        </div>
 
-      <div class="field">
-        <label for="minRating">Minimum rating</label>
-        <select id="minRating" name="minRating">
-          <option value="">Any rating</option>
-          <option value="4">★★★★ 4 and up</option>
-          <option value="3">★★★ 3 and up</option>
-          <option value="2">★★ 2 and up</option>
-          <option value="1">★ 1 and up</option>
-        </select>
-      </div>
+        <div class="field">
+          <label for="minRating">Minimum rating</label>
+          <select id="minRating" name="minRating">
+            <option value="">Any rating</option>
+            <option value="4">★★★★ 4 and up</option>
+            <option value="3">★★★ 3 and up</option>
+            <option value="2">★★ 2 and up</option>
+            <option value="1">★ 1 and up</option>
+          </select>
+        </div>
 
-      <div class="field">
-        <label for="sort">Sort by</label>
-        <select id="sort" name="sort">
-          <option value="rating">Top rated</option>
-          <option value="name">Name (A to Z)</option>
-          <option value="newest">Newest</option>
-        </select>
-      </div>
+        <div class="field">
+          <label for="sort">Sort by</label>
+          <select id="sort" name="sort">
+            <option value="rating">Top rated</option>
+            <option value="name">Name (A to Z)</option>
+            <option value="newest">Newest</option>
+          </select>
+        </div>
+      </form>
 
-      <div class="search-actions">
-        <button type="button" class="button button-secondary clear-filters">Clear filters</button>
-      </div>
-    </form>
+      <!-- 3. Browse by cuisine: one photo tile per cuisine (filled by search.js) -->
+      <section id="cuisines" class="section" aria-labelledby="cuisines-heading">
+        <div class="section-title">
+          <p class="eyebrow">Explore</p>
+          <h2 id="cuisines-heading">Browse by cuisine</h2>
+        </div>
+        <div id="cuisine-tiles" class="cuisine-tiles"></div>
+      </section>
 
-    <div class="results-bar">
-      <p id="result-count" class="result-count" aria-live="polite"></p>
-      <p id="restore-note" class="muted small"></p>
+      <!-- 4. The results -->
+      <section id="restaurants" class="section" aria-labelledby="results-heading">
+        <div class="section-title">
+          <p class="eyebrow">Restaurants</p>
+          <h2 id="results-heading">Where to eat</h2>
+        </div>
+
+        <div class="results-bar">
+          <p id="result-count" class="result-count" aria-live="polite"></p>
+          <p id="restore-note" class="muted small"></p>
+          <button type="button" class="button button-secondary button-small clear-filters">Clear filters</button>
+        </div>
+        <div id="search-message" class="message"></div>
+        <div id="results" class="card-grid"></div>
+      </section>
+
+      <!-- 5. How Sahaan works -->
+      <section class="section how-it-works" aria-labelledby="how-heading">
+        <div class="section-title">
+          <p class="eyebrow">How it works</p>
+          <h2 id="how-heading">Good food, three steps away</h2>
+        </div>
+        <ol class="steps">
+          <li class="step">
+            <span class="step-number">01</span>
+            <h3>Search</h3>
+            <p>Look up a restaurant, a cuisine or a single dish, then narrow it down by area, price and rating.</p>
+          </li>
+          <li class="step">
+            <span class="step-number">02</span>
+            <h3>Read</h3>
+            <p>Open a restaurant to see its full menu with prices, its opening hours and what other diners thought.</p>
+          </li>
+          <li class="step">
+            <span class="step-number">03</span>
+            <h3>Share</h3>
+            <p>Been there? Leave a star rating and a short review to help the next person decide.</p>
+          </li>
+        </ol>
+      </section>
     </div>
-    <div id="search-message" class="message"></div>
-    <div id="results" class="card-grid"></div>
   </main>
 
   <footer class="site-footer">Sahaan · F28WP Group 15 · All restaurants and reviews are demo data</footer>

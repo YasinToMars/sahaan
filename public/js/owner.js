@@ -57,6 +57,12 @@ function renderRestaurants() {
 
   myRestaurants.forEach(function (restaurant) {
     const menuWords = restaurant.menu_count === 1 ? '1 menu item' : restaurant.menu_count + ' menu items';
+
+    // Opening hours are optional, so the line only appears when they are set.
+    const $hours = restaurant.opening_hours
+      ? $('<p class="card-hours">').text('Open: ' + restaurant.opening_hours)
+      : null;
+
     $list.append(
       $('<article class="panel owner-card">').attr('data-id', restaurant.id).append(
         $('<div class="owner-card-swatch" aria-hidden="true">')
@@ -67,6 +73,7 @@ function renderRestaurants() {
           $('<p class="card-meta">').text(
             restaurant.cuisine + ' · ' + restaurant.location + ' · ' + priceLabel(restaurant.price_level)
           ),
+          $hours,
           $('<div class="stat-line">').append(
             buildRating(restaurant.avg_rating, restaurant.review_count),
             $('<p class="muted small">').text(menuWords)

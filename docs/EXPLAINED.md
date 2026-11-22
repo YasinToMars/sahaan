@@ -8,7 +8,7 @@ Read your own section before the demo. Each one has:
 - one action traced from the click to the database and back, with the real function names and SQL
 - the validation and security checks in your part
 - four questions an examiner might ask, with short answers
-- your task, with a hint
+- the feature you added, and how it works
 
 Words used everywhere:
 - **AJAX**: the page asks the server for data without reloading. We use jQuery `$.ajax`, wrapped in `api()` in `public/js/common.js`.
@@ -32,12 +32,13 @@ Contents: [Yasin](#yasin-shafiei) · [Danish](#danish-maindan) · [Orit](#orit-w
 | `middleware/auth.js` | The `sessions` Map (token → user id), `createSession()`, `deleteSession()`, and the middleware `requireLogin` and `requireRole(...roles)`. |
 | `routes/auth.js` | FR1: `/api/auth/register`, `/login`, `/logout`, `/me`, `/profile`, `/password`. |
 | `routes/search.js` | FR2: `GET /api/restaurants` (search) and `GET /api/restaurants/filters` (dropdown lists). |
-| `public/index.html` + `js/search.js` | The home page: search box, five dropdowns, result cards, "Clear filters", empty state, and the last search in localStorage. |
+| `public/index.html` + `js/search.js` | The home page: the photo hero with "Popular" quick searches, the search box and five dropdowns, "Browse by cuisine" tiles, result cards with loading placeholders, "Clear filters", the empty state, the "How it works" band, and the last search in localStorage. |
 | `public/login.html` + `js/login.js` | Login form; afterwards goes to `?next=` or the right page for the role. |
 | `public/register.html` + `js/register.js` | Sign-up form with "I'm a customer" / "I own a restaurant". |
 | `public/profile.html` + `js/profile.js` | "Your details" (name, email) and "Change password". |
-| `public/js/common.js` | Shared by every page: the session in localStorage, `api()`, the header (`renderHeader()`), page guards (`requireLogin()`, `requireRole()`), messages (`showMessage()`, `showFieldErrors()`), the validation rules, and helpers like `escapeHtml()`, `starsText()`, `setupCounter()`, `buildStarPicker()`. |
+| `public/js/common.js` | Shared by every page: the session in localStorage, `api()`, the header (`renderHeader()`), page guards (`requireLogin()`, `requireRole()`), messages (`showMessage()`, `showFieldErrors()`), the validation rules, helpers like `escapeHtml()`, `starsText()`, `setupCounter()`, `buildStarPicker()`, and `renderFooter()` (the footer on every page) and `watchScroll()` (the header turns solid on scroll). |
 | `public/css/style.css` | The one stylesheet. All colours, fonts and spacing are variables in `:root`. Phone layout under 700px. |
+| `public/credits.html` + `public/images/cuisines/` | One food photo per cuisine, and the page that credits each photo's author, licence and source. |
 
 ### One action traced: searching for budget restaurants rated 4+
 
@@ -76,13 +77,24 @@ Contents: [Yasin](#yasin-shafiei) · [Danish](#danish-maindan) · [Orit](#orit-w
 3. **Where is Web Storage used?** `sahaan.session` holds the token and user (so the header knows the role), and `sahaan.lastSearch` holds the last search filters, which come back after a reload.
 4. **Why `HAVING` and not `WHERE` for the minimum rating?** `WHERE` runs before grouping, when the average doesn't exist yet. `HAVING` runs after `GROUP BY`, so it can filter on `AVG(rv.rating)`.
 
-### Your task: the design pass
+### What you added: the design and the home page
 
-All colours, fonts and spacing are variables at the top of `public/css/style.css`. Hints:
-- Change the look from `:root` first; the rest of the file uses the variables.
-- The card colour blocks are `--swatch-0` to `--swatch-5`.
-- Check the phone layout in the browser's dev tools (toggle device toolbar, 375px wide). The phone rules are at the bottom in `@media (max-width: 699px)`.
-- Keep the focus ring (`:focus-visible`) clearly visible for keyboard users.
+The look is in `public/css/style.css` (plain CSS, no libraries). The home page layout is in `public/index.html` and `public/js/search.js`, and the shared header and footer are in `public/js/common.js`. Teammates' pages pick up the new look without any change to their files.
+
+- **Black and white.** White cards (`#FFFFFF`) on a light grey page (`#F4F4F2`), near-black text and buttons (`#0A0A0A`), grey for secondary text (`#5C5C5C`). Red (`#B00020`) is the only colour, kept for errors and Delete. Every colour, font, spacing, radius and shadow is a variable in `:root`, so the look can be changed in one place.
+- **Fonts.** Headlines use Playfair Display (an elegant serif, like a food magazine) and text uses Inter. Both are free (SIL Open Font License) and stored in `public/fonts/`; section 0 of the stylesheet loads them with `@font-face`, so no CDN is needed.
+- **Home page, top to bottom.**
+  1. *Hero:* a black band with the headline, "Popular" buttons and three numbers. Clicking a "Popular" button puts the word in `#q` and calls `runSearch()`. `renderHeroStats()` counts the cuisines, areas and price levels from `LISTS`, so the numbers always match `config/lists.js`. Three food photos sit on the right like prints on a table (CSS `rotate`).
+  2. *Search card:* the same form as before, floating over the bottom of the hero.
+  3. *Browse by cuisine:* `renderCuisineTiles()` makes one photo button per cuisine from `LISTS.cuisines`. Clicking one sets the Cuisine dropdown and calls `runSearch()`; clicking it again clears it. `markActiveTile()` puts a black ring on the chosen one.
+  4. *Results:* the cards as before. On the first load, `showSkeletons()` shows four grey placeholder cards with a moving shine until the answer arrives.
+  5. *How it works:* three numbered steps (plain HTML).
+- **Header and footer.** On the home page the header floats over the hero, see-through with white text. `watchScroll()` adds the class `scrolled` once the page moves, and the CSS turns the header solid white. `renderFooter()` in `common.js` builds the same black footer on every page: the logo, a short line, three columns of links (the Account column changes when you are logged in), and the Photo credits link.
+- **Food photos.** Each cuisine has one photo in `public/images/cuisines/` (from Wikimedia Commons, credited on `credits.html`). `swatchClass()` returns two classes, e.g. `"swatch-3 photo-indian"`, and the stylesheet has one line per cuisine, e.g. `.photo-indian { background-image: url("/images/cuisines/indian.jpg"); }`. The same photo appears on the cuisine tiles, the result cards, the restaurant page banner and the owner's cards. The `swatch-0` to `swatch-5` CSS patterns sit underneath as a fallback.
+- **Restaurant page.** A wide photo banner with the details underneath, the menu laid out like a printed menu (dotted lines to the prices), and "Your review" as a black card.
+- **Movement.** Cards, panels and tiles fade up as they appear (`@keyframes rise`, one after another with `animation-delay`). Anyone who turns off animations in their system settings gets none, thanks to `@media (prefers-reduced-motion: reduce)`.
+- **Accessibility.** `:focus-visible` draws a clear outline on every link, button and field. Text colours meet WCAG AA (at least 4.5:1); input borders and empty stars are at least 3:1. The hero photos are `aria-hidden`, because they are decoration.
+- **Phone.** Under 700px the links hide behind the Menu button, the hero photos are hidden, the filters stack, and the cuisine tiles go three to a row. `main { overflow-x: clip }` makes sure no page scrolls sideways at 375px.
 
 ---
 
@@ -121,6 +133,8 @@ All colours, fonts and spacing are variables at the top of `public/css/style.css
 
 Editing works the same way: `showEditForm()` swaps the box for a filled-in form, `saveEdit()` sends `PUT /api/reviews/:id`, and the route runs `UPDATE reviews SET rating = ?, comment = ? WHERE id = ? AND user_id = ?`.
 
+`loadRestaurant()` draws the list with `renderSortedReviews()`, so the order chosen in "Sort reviews" stays after posting, editing or deleting.
+
 ### Validation and security in your part
 
 - Rating must be a whole number 1 to 5; comment 5 to 500 characters after trimming. Same rules in `common.js` and `utils/validate.js`; the counter turns red outside 5 to 500.
@@ -137,13 +151,17 @@ Editing works the same way: `showEditForm()` swaps the box for a filled-in form,
 3. **How do you stop a customer from editing someone else's review?** The SQL is `UPDATE ... WHERE id = ? AND user_id = ?` with the logged-in user's id from the token, not from the browser. If it's not theirs, no row matches and we return 404.
 4. **What happens if MySQL is down?** `db.testConnection()` fails at startup and `explainError()` prints a plain message (for example "Could not reach MySQL. Make sure MySQL is installed and running") and the app stops.
 
-### Your task: "Sort reviews"
+### What you added: "Sort reviews"
 
-Search for `TODO (Danish)` in `public/restaurant.html` and `public/js/restaurant.js`.
-1. In the HTML, add `<select id="review-sort">` with a label and three options: Newest, Highest rating, Lowest rating.
-2. In the JS, listen for `change` on `#review-sort`.
-3. Copy the loaded reviews with `currentReviews.slice()` (so the original order stays), sort the copy with `.sort(function (a, b) { ... })`: for ratings compare `a.rating` and `b.rating`; for newest compare `new Date(a.created_at)` and `new Date(b.created_at)`.
-4. Call `renderReviews(sortedCopy)`. No server call is needed.
+A dropdown above the reviews with Newest, Highest rating and Lowest rating. It re-orders the reviews already on the page, so there is no AJAX, no route and no SQL.
+1. **HTML** (`restaurant.html`): `<select id="review-sort">` with a label, in the `.section-head` next to the "Reviews" heading.
+2. **Event:** in `restaurant.js`, `$('#review-sort').on('change', renderSortedReviews)`.
+3. **Sort:** `renderSortedReviews()` reads `$('#review-sort').val()`, copies the reviews with `currentReviews.slice()` (so the server's order is kept), and sorts the copy with `.sort(function (a, b) { ... })`:
+   - Highest rating: `b.rating - a.rating`
+   - Lowest rating: `a.rating - b.rating`
+   - Newest, and the tie-breaker for equal ratings: `new Date(b.created_at) - new Date(a.created_at)`, then the larger `id` first
+4. **Page:** it passes the sorted copy to `renderReviews(sortedReviews)`, which redraws the list.
+5. `currentReviews` came from `GET /api/restaurants/:id`, whose SQL already sorts by `ORDER BY rv.created_at DESC, rv.id DESC`. Because `loadRestaurant()` calls `renderSortedReviews()`, the chosen order stays after a review is posted, edited or deleted.
 
 ---
 
@@ -156,14 +174,14 @@ Search for `TODO (Danish)` in `public/restaurant.html` and `public/js/restaurant
 | File | What it does |
 |---|---|
 | `routes/owner.js` | FR5: `GET /api/owner/restaurants` (my restaurants with stats), `POST /api/owner/restaurants` (add), `PUT /api/owner/restaurants/:id` (update mine). |
-| `public/owner.html` | The "My restaurants" list and the add/edit form (name, cuisine, location, price, description). |
-| `public/js/owner.js` | `loadMyRestaurants()`, `renderRestaurants()` (cards with Edit, View public page, Menu & reviews), `readForm()`, `fillForm()`, `resetForm()`, `saveRestaurant()`. |
+| `public/owner.html` | The "My restaurants" list and the add/edit form (name, cuisine, location, price, description, opening hours). |
+| `public/js/owner.js` | `loadMyRestaurants()`, `renderRestaurants()` (cards with stats, opening hours, Edit, View public page, Menu & reviews), `readForm()`, `fillForm()`, `resetForm()`, `saveRestaurant()`. |
 
 ### One action traced: editing a restaurant
 
 1. owner1 opens `owner.html`. `requireRole(['owner'])` lets them in. `loadMyRestaurants()` calls `api('GET', '/api/owner/restaurants')`, which runs:
    ```sql
-   SELECT r.id, r.name, r.cuisine, r.location, r.price_level, r.description,
+   SELECT r.id, r.name, r.cuisine, r.location, r.price_level, r.description, r.opening_hours,
      ROUND(AVG(rv.rating), 1) AS avg_rating, COUNT(rv.id) AS review_count,
      (SELECT COUNT(*) FROM menu_items m WHERE m.restaurant_id = r.id) AS menu_count
    FROM restaurants r
@@ -174,11 +192,11 @@ Search for `TODO (Danish)` in `public/restaurant.html` and `public/js/restaurant
    ```
    `renderRestaurants()` draws a card for each one.
 2. They click **Edit** on Cedar Lantern. `fillForm(restaurant)` copies its values into the form, puts its id in the hidden `#restaurant-id`, and changes the heading to "Edit Cedar Lantern" and the button to "Save changes".
-3. They change the price and click **Save changes**. `saveRestaurant()` calls `readForm()` and checks it with `checkRestaurantName()`, `checkCuisine()`, `checkLocation()`, `checkPriceLevel()` and `checkDescription()`.
+3. They change the price and click **Save changes**. `saveRestaurant()` calls `readForm()` and checks it with `checkRestaurantName()`, `checkCuisine()`, `checkLocation()`, `checkPriceLevel()` and `checkDescription()`, and checks that the opening hours are at most 100 characters.
 4. Because `#restaurant-id` has a value, it sends `api('PUT', '/api/owner/restaurants/2', data)` (with no id it would `POST`).
-5. `routes/owner.js`: `requireRole('owner')`, `validate.toId()`, `validate.checkRestaurant()`, then:
+5. `routes/owner.js`: `requireRole('owner')`, `validate.toId()`, `validate.checkRestaurant()`, `openingHoursError()`, then:
    ```sql
-   UPDATE restaurants SET name = ?, cuisine = ?, location = ?, price_level = ?, description = ?
+   UPDATE restaurants SET name = ?, cuisine = ?, location = ?, price_level = ?, description = ?, opening_hours = ?
    WHERE id = ? AND owner_id = ?
    ```
    If `affectedRows` is 0 (not found, or another owner's restaurant) → 404. Otherwise 200 `{ "message": "Your restaurant has been updated." }`.
@@ -187,6 +205,7 @@ Search for `TODO (Danish)` in `public/restaurant.html` and `public/js/restaurant
 ### Validation and security in your part
 
 - Name 2 to 100 characters; cuisine and location must be in `config/lists.js`; price level a whole number 1 to 4; description at most 500 (with a live counter). Same rules in the browser and on the server.
+- Opening hours are optional. If sent, they must be text of at most 100 characters; a number, a list or 101 characters gets 400 "Opening hours must be at most 100 characters." Empty hours are saved as `NULL`.
 - `requireRole('owner')` on every route: customers get 403, visitors 401.
 - `owner_id` always comes from `req.user.id` (the token), never from the form. The UPDATE has `AND owner_id = ?`, so owner1 cannot change owner2's restaurant (404).
 
@@ -197,13 +216,19 @@ Search for `TODO (Danish)` in `public/restaurant.html` and `public/js/restaurant
 3. **Why a subquery for `menu_count`?** If we joined reviews and menu items in the same query, each review row would be repeated for each menu item, and the counts would be multiplied.
 4. **What happens if the owner leaves the cuisine empty?** The browser shows "Choose a cuisine from the list." under the field and does not send. If someone sends it anyway, `validate.checkRestaurant()` on the server returns 400 with the same message.
 
-### Your task: "Opening hours"
+### What you added: "Opening hours"
 
-Search for `TODO (Orit)`. There is one spot in each of your three files. The `opening_hours` column already exists (VARCHAR(100), NULL allowed), the demo data fills it for some restaurants, and `restaurant.html` already shows it.
-1. `owner.html`: add a text input `id="opening_hours" name="opening_hours" maxlength="100"`, a label, a hint (e.g. "Daily 10:00-23:00") and `<p class="field-error" data-error-for="opening_hours"></p>`.
-2. `owner.js`: add `opening_hours: $('#opening_hours').val().trim()` in `readForm()`; in `saveRestaurant()` add an error if it is longer than 100 characters; in `fillForm()` set `$('#opening_hours').val(restaurant.opening_hours || '')`.
-3. `routes/owner.js`: return 400 if `req.body.opening_hours` is longer than 100; add `opening_hours` to the INSERT and UPDATE column lists with one more `?` and `validate.optionalText(req.body.opening_hours)`; add `r.opening_hours` to the SELECT.
-4. Test: edit a restaurant, add hours, open "View public page".
+An optional field such as "Daily 10:00-23:00", saved in the `opening_hours` column (VARCHAR(100), NULL allowed).
+1. **HTML** (`owner.html`): a text box `id="opening_hours" name="opening_hours" maxlength="100"` with a label, a hint and its error line.
+2. **Browser:** `readForm()` adds `opening_hours: $('#opening_hours').val().trim()`. `saveRestaurant()` shows "Opening hours must be at most 100 characters." under the field if it is too long, otherwise it sends the data with `api('POST', ...)` or `api('PUT', ...)` as above.
+3. **Route** (`routes/owner.js`): both routes call `openingHoursError(req.body.opening_hours)`. Missing, `null` or `''` is fine; anything that is not text, or longer than 100 characters, gets 400.
+4. **SQL:** the INSERT and UPDATE have one more column and one more `?`:
+   ```sql
+   INSERT INTO restaurants (owner_id, name, cuisine, location, price_level, description, opening_hours)
+   VALUES (?, ?, ?, ?, ?, ?, ?)
+   ```
+   The value is `validate.optionalText(req.body.opening_hours)`, which turns an empty box into `NULL`. The SELECT for "My restaurants" includes `r.opening_hours`.
+5. **Page:** `fillForm()` puts the saved hours back in the box when Edit is clicked. `renderRestaurants()` adds a line "Open: Daily 10:00-23:00" on the card (with `.text()`) when hours are set. On the public page, `renderDetails()` in `restaurant.js` shows them as an "Open: …" tag.
 
 ---
 
@@ -219,7 +244,7 @@ Search for `TODO (Orit)`. There is one spot in each of your three files. The `op
 | `database/seed.sql` | 10 made-up restaurants with menus and reviews. Looks owners up by email into `@owner1` etc. and uses `LAST_INSERT_ID()` after each restaurant. |
 | `database/setup.js` | `npm run db:setup`: drops and recreates the database, runs `schema.sql`, inserts the 8 demo users with `hashPassword()`, runs `seed.sql`, prints the demo accounts. |
 | `routes/menu.js` | FR6 and FR7: list/add menu items, update/delete a menu item, list the reviews of my restaurant. `findOwnRestaurant()` checks ownership. |
-| `public/owner-menu.html` | Restaurant dropdown, menu table, "Add an item" form, "Reviews of this restaurant" with the empty `#review-summary`. |
+| `public/owner-menu.html` | Restaurant dropdown, menu table, "Add an item" form, "Reviews of this restaurant" with the `#review-summary` box above the list. |
 | `public/js/owner-menu.js` | `loadMyRestaurants()`, `selectRestaurant()`, `loadMenu()`, `renderMenu()`, `startEdit()`, `readItem()`, `saveItem()`, `deleteItem()`, `addItem()`, `loadReviews()`, `renderReviews()`. |
 
 ### The four tables
@@ -265,13 +290,13 @@ One owner has many restaurants; one restaurant has many menu items and many revi
 3. **Why is price `DECIMAL(7,2)` and not `FLOAT`?** DECIMAL stores money exactly (25.50 stays 25.50). FLOAT can store 25.499999. 7 digits with 2 after the point allows up to 99999.99.
 4. **How does the server know an item belongs to the owner, when the URL only has the item id?** It joins `menu_items` to `restaurants` and checks `r.owner_id = ?` in the same UPDATE or DELETE.
 
-### Your task: the review summary
+### What you added: the review summary
 
-Search for `TODO (Aberham)` in `public/js/owner-menu.js`. `<div id="review-summary"></div>` is already in the HTML and the reviews are already loaded.
-1. In `renderReviews(reviews)`, make a counts object `{ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }` and a total.
-2. `reviews.forEach(function (review) { ... })`: add 1 to `counts[review.rating]` and add the rating to the total.
-3. Average = total ÷ `reviews.length` (use `.toFixed(1)`; watch out for 0 reviews).
-4. Build the summary with jQuery and `.text()`, e.g. "4 reviews · average 3.8" and one line per star value ("5★ 1", "4★ 2" …), then put it in `#review-summary` with `.empty().append(...)`.
+A short summary above the reviews: "4 reviews · average 3.8", then how many reviews have 5, 4, 3, 2 and 1 stars. It is worked out in the browser from the reviews already loaded, so there is no extra AJAX or SQL.
+1. **Load:** `selectRestaurant()` calls `loadReviews()`, which sends `GET /api/owner/restaurants/:id/reviews`. The route checks the owner with `findOwnRestaurant()` and runs `SELECT rv.id, rv.rating, rv.comment, rv.created_at, u.full_name AS reviewer_name FROM reviews rv JOIN users u ON u.id = rv.user_id WHERE rv.restaurant_id = ? ORDER BY rv.created_at DESC, rv.id DESC`.
+2. **Count:** `renderReviews(reviews)` empties `#review-summary`. If there are no reviews it leaves the summary empty, because the list below already says "No reviews yet for this restaurant." Otherwise it makes `counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }` and a `total`, and `reviews.forEach(...)` adds 1 to `counts[rating]` and the rating to `total`.
+3. **Average:** `(total / reviews.length).toFixed(1)`, e.g. 3.8.
+4. **Page:** it appends a bold headline (`<strong>` with `.text()`) and, in a `for` loop from 5 down to 1, one small box per star value ("5★ 1", "4★ 2" …). Then the review list is drawn as before.
 
 ---
 
@@ -285,7 +310,7 @@ Search for `TODO (Aberham)` in `public/js/owner-menu.js`. `<div id="review-summa
 |---|---|
 | `routes/admin.js` | FR8, FR9, FR10: `/api/admin/stats`, users (list, edit, delete), restaurants (list, edit, delete), reviews (list, delete). Every route starts with `requireRole('admin')`. |
 | `public/admin.html` | Overview counts, the three tabs, a search box per tab (plus a role filter for users), an edit panel above each table. |
-| `public/js/admin.js` | `showTab()` for the jQuery tabs, `liveSearch()`, `loadStats()`, `loadUsers()`/`renderUsers()`/`openUserForm()`/`saveUser()`/`deleteUser()`, the same for restaurants, and `loadReviews()`/`renderReviews()`/`deleteReview()`. |
+| `public/js/admin.js` | `showTab()` for the jQuery tabs, `liveSearch()`, `loadStats()`, `loadUsers()`/`renderUsers()`/`openUserForm()`/`saveUser()`/`deleteUser()`, the same for restaurants, `loadReviews()`/`renderReviews()`/`deleteReview()`, and `applyLowRatingFilter()` for the low-rating checkbox. |
 | `docs/TEST_CHECKLIST.md` | Every test to run before submitting. |
 
 ### One action traced: removing the rude review
@@ -326,13 +351,15 @@ Search for `TODO (Aberham)` in `public/js/owner-menu.js`. `<div id="review-summa
 3. **What happens to an owner's restaurants when you delete the owner?** `ON DELETE CASCADE` deletes them, and their menu items and reviews. That's why the confirm box warns first.
 4. **If you change a customer into an owner, when does it take effect?** Immediately: `requireLogin` reads the role from the database on every request, not from the token or the browser.
 
-### Your task: "Show only low ratings"
+### What you added: "Show only low ratings"
 
-Search for `TODO (Yassin Awny)` in `public/admin.html` and `public/js/admin.js`. Every review row already has `data-rating`.
-1. In the HTML, add `<label><input type="checkbox" id="low-ratings-only"> Show only low ratings (1–2 stars)</label>` in the Reviews toolbar.
-2. In the JS, write a small function that runs through `$('#reviews-table tbody tr')` and hides a row (`$(this).hide()`) if the box is ticked and `Number($(this).attr('data-rating')) > 2`, otherwise shows it.
-3. Call it on the checkbox's `change` event, and at the end of `renderReviews()` so it still works after a search.
+A checkbox on the Reviews tab: "Show only low ratings (1–2 stars)". It hides rows in the browser, so there is no AJAX, no route and no SQL.
+1. **HTML** (`admin.html`): `<label class="checkbox-label"><input type="checkbox" id="low-ratings-only"> …</label>` in the Reviews toolbar, next to the search box.
+2. **Data:** `renderReviews()` already puts the rating on each row: `$('<tr>').attr('data-rating', review.rating)`. The reviews come from `GET /api/admin/reviews` (the SQL above).
+3. **Event:** `$('#low-ratings-only').on('change', applyLowRatingFilter)`.
+4. **Filter:** `applyLowRatingFilter()` reads `$('#low-ratings-only').prop('checked')`, removes any old "No low-rated reviews" row, and goes through every `#reviews-table tbody tr[data-rating]`: if the box is ticked and the rating is above 2 it calls `.hide()`, otherwise `.show()`. If the box is ticked and no review is left, it adds one row saying "No low-rated reviews".
+5. **After a search:** `renderReviews()` calls `applyLowRatingFilter()` at the end (also when the list is empty), so the filter still applies after a new search or after a review is removed.
 
 ### Testing
 
-On Sat 21 Nov, run every line of `docs/TEST_CHECKLIST.md` on the final version, tick each one, and send anything that fails to the file's owner.
+Run every line of `docs/TEST_CHECKLIST.md` on the final version, tick each one, and send anything that fails to the file's owner.

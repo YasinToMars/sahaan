@@ -237,9 +237,8 @@ function renderReviews(reviews) {
   // It is drawn first, because the list below stops early when there are no reviews.
   const $summary = $('#review-summary').empty();
 
-  if (reviews.length === 0) {
-    $summary.append($('<p class="muted">').text('No reviews yet'));
-  } else {
+  // With no reviews the summary stays empty: the list below shows its own empty-state line.
+  if (reviews.length > 0) {
     const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     let total = 0;
 

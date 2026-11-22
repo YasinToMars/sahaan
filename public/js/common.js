@@ -424,12 +424,73 @@ function shorten(text, maxLength) {
   return text.length > maxLength ? text.slice(0, maxLength - 1).trim() + '…' : text;
 }
 
-// Picks one of six card colours from the cuisine name, so each cuisine always gets the same colour.
+// The classes for a cuisine's picture block, e.g. "swatch-3 photo-indian".
+//  - swatch-0 to swatch-5: one of six patterns, picked from the letters of the cuisine name
+//  - photo-<cuisine>: the cuisine's food photo from public/images/cuisines/ (see style.css section 10)
+// normalize('NFD') splits "é" into "e" + an accent, so "Café" becomes "photo-cafe".
 function swatchClass(cuisine) {
   let total = 0;
   for (const character of String(cuisine)) total += character.charCodeAt(0);
-  return 'swatch-' + (total % 6);
+  const name = String(cuisine).toLowerCase().normalize('NFD').replace(/[^a-z]/g, '');
+  return 'swatch-' + (total % 6) + ' photo-' + name;
 }
+
+// The footer on every page: the name, a short line, three columns of links, and a bottom line.
+// The text already in <footer class="site-footer"> is kept as the bottom line.
+function renderFooter() {
+  const user = getUser();
+  const $footer = $('.site-footer');
+  const bottomText = $footer.text();
+
+  function column(title, links) {
+    const $list = $('<ul>');
+    links.forEach(function (link) {
+      $list.append($('<li>').append($('<a>').attr('href', link.href).text(link.text)));
+    });
+    return $('<div class="footer-column">').append($('<h2>').text(title), $list);
+  }
+
+  const accountLinks = user
+    ? [{ href: '/profile.html', text: 'Your profile' }]
+    : [{ href: '/login.html', text: 'Log in' }, { href: '/register.html', text: 'Create an account' }];
+
+  $footer.empty().append(
+    $('<div class="footer-inner">').append(
+      $('<div class="footer-brand">').append(
+        $('<a class="logo logo-light" href="/index.html">').text('Sahaan'),
+        $('<p>').text('A food guide for Dubai: find restaurants, read the menu and honest reviews, and share your own.')
+      ),
+      column('Explore', [
+        { href: '/index.html', text: 'All restaurants' },
+        { href: '/index.html#cuisines', text: 'Browse by cuisine' }
+      ]),
+      column('For owners', [
+        { href: '/register.html', text: 'List your restaurant' },
+        { href: '/owner.html', text: 'My restaurants' }
+      ]),
+      column('Account', accountLinks)
+    ),
+    $('<div class="footer-bottom">').append(
+      $('<p>').text(bottomText),
+      $('<a href="/credits.html">').text('Photo credits')
+    )
+  );
+}
+
+// The header gets a "scrolled" class once the page moves, so it can turn solid
+// (on the home page it starts see-through over the dark hero).
+function watchScroll() {
+  function update() {
+    $('#site-header').toggleClass('scrolled', window.scrollY > 8);
+  }
+  $(window).on('scroll', update);
+  update();
+}
+
+$(function () {
+  renderFooter();
+  watchScroll();
+});
 
 // Live character counter: "23 / 500". It turns red outside min..max.
 function setupCounter($textarea, $counter, min, max) {

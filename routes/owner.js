@@ -30,15 +30,20 @@ router.get('/restaurants', requireRole('owner'), async (req, res) => {
 
 // Opening hours are optional, at most 100 characters (e.g. "Daily 10:00-23:00").
 // Both routes below check this, the same rule as the browser check in public/js/owner.js.
+// Missing, null or '' is fine; anything else must be text of at most 100 characters.
+function openingHoursError(value) {
+  if (value === undefined || value === null || value === '') return '';
+  if (typeof value !== 'string' || value.length > 100) return 'Opening hours must be at most 100 characters.';
+  return '';
+}
 
 // POST /api/owner/restaurants  (owner): add a restaurant.
 router.post('/restaurants', requireRole('owner'), async (req, res) => {
   const error = validate.checkRestaurant(req.body);
   if (error) return res.status(400).json({ error });
 
-  if (req.body.opening_hours && req.body.opening_hours.length > 100) {
-    return res.status(400).json({ error: 'Opening hours must be at most 100 characters.' });
-  }
+  const hoursError = openingHoursError(req.body.opening_hours);
+  if (hoursError) return res.status(400).json({ error: hoursError });
 
   const result = await db.query(
     'INSERT INTO restaurants (owner_id, name, cuisine, location, price_level, description, opening_hours) ' +
@@ -64,9 +69,8 @@ router.put('/restaurants/:id', requireRole('owner'), async (req, res) => {
   const error = validate.checkRestaurant(req.body);
   if (error) return res.status(400).json({ error });
 
-  if (req.body.opening_hours && req.body.opening_hours.length > 100) {
-    return res.status(400).json({ error: 'Opening hours must be at most 100 characters.' });
-  }
+  const hoursError = openingHoursError(req.body.opening_hours);
+  if (hoursError) return res.status(400).json({ error: hoursError });
 
   const result = await db.query(
     'UPDATE restaurants SET name = ?, cuisine = ?, location = ?, price_level = ?, description = ?, opening_hours = ? ' +

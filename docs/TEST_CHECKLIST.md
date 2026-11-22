@@ -51,6 +51,9 @@ Copy the `token` value from the answer and use it in place of `TOKEN` below. Add
 | 2.10 | Search for `' OR 1=1 --` | No error and 0 restaurants | |
 | 2.11 | **(curl)** `curl -i "http://localhost:3000/api/restaurants?cuisine=Martian"` | 400 `{"error":"Choose a cuisine from the list."}` | |
 | 2.12 | **(curl)** `curl -i "http://localhost:3000/api/restaurants?sort=hack"` | 400 `{"error":"Sort must be rating, name or newest."}` | |
+| 2.13 | On the home page, click "Sushi" under Popular | The page scrolls to the results; the search box says "sushi"; Kaze Noodle & Sushi Bar is shown | |
+| 2.14 | Under "Browse by cuisine", click Indian, then click it again | First: the Cuisine dropdown shows Indian, the tile gets a black ring, Karama Spice Box is shown. Second: the filter is cleared and all restaurants come back | |
+| 2.15 | Scroll down from the top of the home page | The header starts see-through over the black hero and turns solid white once you scroll | |
 
 ## FR3: View restaurants, menus and reviews (Danish)
 
@@ -62,6 +65,10 @@ Copy the `token` value from the answer and use it in place of `TOKEN` below. Add
 | 3.4 | Open Saffron Courtyard | "No reviews yet" and "No reviews yet. Be the first…" | |
 | 3.5 | Log out and open any restaurant | "Log in to write a review." with a link | |
 | 3.6 | Open `restaurant.html?id=999` and `restaurant.html?id=abc` | "Restaurant not found" with a way back | |
+| 3.7 | Open Karama Spice Box. Find "Sort reviews" next to the Reviews heading | Label and dropdown on one line, on the right; the list starts with the newest review | |
+| 3.8 | Choose Highest rating, then Lowest rating | 5★ first, then 2★ first; the page does not reload (no network request in dev tools) | |
+| 3.9 | As customer1, choose Lowest rating, then edit your review there and save | After saving, the list is still sorted by Lowest rating | |
+| 3.10 | With Lowest rating chosen, delete your review, then post a new one | The list stays sorted by Lowest rating each time | |
 
 ## FR4: Write, edit and delete your own reviews (Danish)
 
@@ -91,6 +98,12 @@ Copy the `token` value from the answer and use it in place of `TOKEN` below. Add
 | 5.6 | Change the price and save | "Your restaurant has been updated."; the card shows the new price | |
 | 5.7 | Click "View public page" | Its restaurant page with the new details; it also appears in search | |
 | 5.8 | **(curl)** With owner1's token, update restaurant 5 (owner2's): `curl -i -X PUT http://localhost:3000/api/owner/restaurants/5 -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" -d '{"name":"Hacked","cuisine":"Seafood","location":"JLT","price_level":1}'` | 404 "Restaurant not found." | |
+| 5.9 | Edit Sidr Tree Kitchen: the Opening hours box | It is filled in with "Daily 12:00-23:00" | |
+| 5.10 | Change the hours to `Sat-Thu 09:00-22:00` and save | "Your restaurant has been updated."; the card shows "Open: Sat-Thu 09:00-22:00"; View public page shows the same in an "Open: …" tag | |
+| 5.11 | Add a restaurant with opening hours | The new card shows "Open: …" | |
+| 5.12 | Edit a restaurant, clear the Opening hours box, save | No "Open:" line on the card or the public page (saved as NULL; check in MySQL: `SELECT opening_hours FROM sahaan.restaurants WHERE id = 1;`) | |
+| 5.13 | **(curl)** With owner1's token, 101 characters: `curl -i -X PUT http://localhost:3000/api/owner/restaurants/1 -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" -d '{"name":"Sidr Tree Kitchen","cuisine":"Emirati","location":"Jumeirah","price_level":3,"opening_hours":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}'` | 400 "Opening hours must be at most 100 characters." | |
+| 5.14 | **(curl)** The same request with `"opening_hours":123`, then with `"opening_hours":["Daily"]` | 400 with the same message both times | |
 
 ## FR6: Owners manage menu items (Aberham)
 
@@ -113,6 +126,8 @@ Copy the `token` value from the answer and use it in place of `TOKEN` below. Add
 | 7.1 | As owner1, choose Karama Spice Box | "Reviews of this restaurant" shows its 4 reviews, newest first | |
 | 7.2 | Choose Saffron Courtyard | "No reviews yet for this restaurant." | |
 | 7.3 | **(curl)** With owner1's token: `curl -i http://localhost:3000/api/owner/restaurants/5/reviews -H "Authorization: Bearer TOKEN"` | 404 (restaurant 5 belongs to owner2) | |
+| 7.4 | Choose Karama Spice Box and look above the reviews | A summary: "4 reviews · average 3.8" in bold, then 5★ 1, 4★ 2, 3★ 0, 2★ 1, 1★ 0 | |
+| 7.5 | Choose Saffron Courtyard (no reviews) | No summary; "No reviews yet for this restaurant." appears once only | |
 
 ## FR8: Admin manages accounts (Yassin Awny)
 
@@ -145,6 +160,11 @@ Copy the `token` value from the answer and use it in place of `TOKEN` below. Add
 | 10.2 | Type `clowns` in the search | Only the rude review | |
 | 10.3 | Click Remove, then OK | "Review removed."; the restaurant's rating changes | |
 | 10.4 | Search for `zzzz` | "No reviews match your search." | |
+| 10.5 | Clear the search. Tick "Show only low ratings (1–2 stars)" | Only 1★ and 2★ reviews are shown; no network request is made | |
+| 10.6 | Untick it | All reviews are shown again | |
+| 10.7 | Tick it, then search for `pide` | "No low-rated reviews" (the matching reviews are 3★ and above) | |
+| 10.8 | With it ticked, search for `worst` | Only the 1★ rude review | |
+| 10.9 | With it ticked, remove a low review | The table reloads and the filter still applies | |
 
 ## NFR Security
 
@@ -155,7 +175,7 @@ Copy the `token` value from the answer and use it in place of `TOKEN` below. Add
 | S.3 | owner1 updating owner2's restaurant or menu item | 404 (see 5.8 and 6.9) | |
 | S.4 | A customer editing someone else's review | 404 (see 4.11) | |
 | S.5 | A second review of the same restaurant | 409 (see 4.10) | |
-| S.6 | Bad input on each form (1.1, 1.2, 4.2, 5.2, 6.3, 8.4, 9.2) | The browser shows the error; with curl the server answers 400 with a message | |
+| S.6 | Bad input on each form (1.1, 1.2, 4.2, 5.2, 5.13, 5.14, 6.3, 8.4, 9.2) | The browser shows the error; with curl the server answers 400 with a message | |
 | S.7 | Search for `' OR 1=1 --` | No error and no extra rows (see 2.10) | |
 | S.8 | **(curl)** Register as admin: `curl -i -X POST http://localhost:3000/api/auth/register -H "Content-Type: application/json" -d '{"full_name":"Evil","email":"evil@sahaan.test","password":"Password1","role":"admin"}'` | 400 | |
 | S.9 | As a customer, open `admin.html` and `owner.html` in the address bar | "You don't have access to this page" | |
@@ -172,8 +192,10 @@ Copy the `token` value from the answer and use it in place of `TOKEN` below. Add
 | U.2 | Open dev tools, phone size (375px wide), visit every page | No sideways scrolling of the page; cards in one column; tables scroll inside their box | |
 | U.3 | At phone size, click Menu | The links open below the logo; click again to close | |
 | U.4 | Submit every form once with good data and once with bad data | Every form shows a clear green success or red error message | |
-| U.5 | Check the empty states (2.7, 3.4, 6.8, 7.2, 10.4, a new customer's My reviews) | Each one shows a friendly message, not a blank space | |
+| U.5 | Check the empty states (2.7, 3.4, 6.8, 7.2, 7.5, 10.4, 10.7, a new customer's My reviews) | Each one shows a friendly message, not a blank space | |
 | U.6 | Use only the keyboard (Tab, Enter, arrow keys) on the home page, a review form and the admin tabs | A visible focus ring everywhere; stars and tabs work with the arrow keys | |
+| U.7 | Look at the home page cards, a restaurant page and My restaurants | Every card shows a food photo for its cuisine (Café included); the cuisine label stays readable | |
+| U.8 | Click "Photo credits" in the footer | 12 photos, each with its author, licence and a Source link | |
 
 ## NFR Reliability
 
